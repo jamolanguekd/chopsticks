@@ -249,6 +249,32 @@ class Player{
 			return (original_count == new_count? true : false);
 		}
 
+		bool validate_transfer_feet(vector<int> feet_values){
+
+			bool valid_feet[feet.size()];
+
+			for(int i = 0; i < feet.size(); i++){
+				if(feet[i].is_living()){
+					valid_feet[i] = true;
+				} else{
+					valid_feet[i] = false;
+				}
+			}
+
+			int original_count = 0;
+		        int new_count = 0;
+
+			for(int i = 0; i < feet.size(); i++){
+				if(valid_feet[i]){
+					original_count += feet[i].get_digits();
+					new_count += feet_values[i];
+				}
+			}
+
+			return (original_count == new_count? true : false);
+		}
+
+
 		//changing the finger values of your hands; disthand
 		void transfer_hands(vector<int> hand_values){
 			

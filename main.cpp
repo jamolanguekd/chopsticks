@@ -153,8 +153,12 @@ int main(int argc, char *argv[]){
 						cin >> x;
 						new_values.push_back(x);
 					}
-					
-					teams[0].get_roster()->at(0).transfer_feet(new_values);
+					if(teams[0].get_roster()->at(0).validate_transfer_feet(new_values)){
+						teams[0].get_roster()->at(0).transfer_feet(new_values);
+					}
+					else{
+						cout << "INVALID MOVE! Your new toe count does not match your old toe count." << endl;
+					}
 				}
 		
 				
