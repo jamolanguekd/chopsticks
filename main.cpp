@@ -121,7 +121,13 @@ int main(int argc, char *argv[]){
 
 					else{
 						if(other_player->get_player_team_number()  == teams[0].get_roster()->at(0).get_player_team_number()){
-							cout << "INVALID MOVE! You cannot attack your teammates " << endl;
+							if(pnumber == teams[0].get_roster()->at(0).get_player_number()){
+								cout << "INVALID MOVE! You cannot attack yourself." << endl;
+							}
+							else{
+								cout << "INVALID MOVE! You cannot attack your teammates " << endl;
+						
+							}
 						}
 
 						else{
