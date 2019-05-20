@@ -1,28 +1,6 @@
-// PAIR WORK BY:
-// Cruel, Nathaniel
-// Jamolangue, Kyle
-
-/*
-some notes:
-
-assuming no input validation is needed.
-assuming input is consistent with game rules.
-in other words, try to break the program within the game's rules.
-
--CANT ATTACK WITH DEAD HANDS OR FEET
--CANT ATTACK DEAD HANDS OR FEET
--CANT TRANSFER FINGERS/TOES TO DEAD HANDS/FEET
--CANT TRANSFER TOES KUNG WALANG FEET
--CANT TRANSFER FINGERS KUNG WALANG HAND
--NO FRIENDLY FIRE
--YOU CAN'T ATTACK YOURSELF
-
-*/
-
 #include <iostream>
 #include <string>
 #include <vector>
-#include <map>
 #include <algorithm>
 
 using namespace std;
