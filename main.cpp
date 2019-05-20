@@ -115,13 +115,19 @@ int main(int argc, char *argv[]){
 						}
 					}
 
-					if(other_player->get_player_team_number() == teams[0].get_roster()->at(0).get_player_team_number()){
-						cout << "INVALID MOVE! You cannot attack your teammates. " << endl;
+					if(other_player == nullptr){
+						cout << "INVALID MOVE! Player #" << pnumber << " does not exist." << endl;
 					}
 
 					else{
-						//cout << endl << "Player #" << teams[0].get_roster()->at(0).get_player_number() << " has attacked Player #" << other_player->get_player_number() << endl;
-						(*teams[0].get_roster())[0].attack(apart,*other_player,tpart);
+						if(other_player->get_player_team_number()  == teams[0].get_roster()->at(0).get_player_team_number()){
+							cout << "INVALID MOVE! You cannot attack your teammates " << endl;
+						}
+
+						else{
+							//cout << endl << "Player #" << teams[0].get_roster()->at(0).get_player_number() << " has attacked Player #" << other_player->get_player_number() << endl;
+							(*teams[0].get_roster())[0].attack(apart,*other_player,tpart);
+						}
 					}
 				}
 				
