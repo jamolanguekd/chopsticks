@@ -11,8 +11,36 @@
 
 using namespace std;
 
-int main(){
-	
+int setup(int argc, char* argv[]){
+	if(argc < 1 and argc > 2){
+		cout << "Too many arguments. The program will not exit." << endl;
+		return 0;
+	}
+
+	int port = atoi(argv[1]);
+	string ip = (argv[2] == NULL? return  "" : return argv[2]);
+
+	if(1024 <= port and port <= 65535){
+		return runServer(port);
+	}
+	else{
+		//run client
+	}
+}
+
+int runServer(int port){
+
+}
+
+void runClient(int){
+
+
+}
+
+int main(int argc, char *argv[]){
+
+	return(setup(argc,argv));	
+
 	int numofplayers, numofteams;
 	cin >> numofplayers >> numofteams;
 	
