@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <sstream>
 
+#include "socketstream/socketstream.hh"
 #include "Hand.h"
 #include "Foot.h"
 #include "Player.h"
@@ -11,7 +12,9 @@
 #include "misc.h"
 
 using namespace std;
-void  parse_command(vector<string> & command, string s){
+using namespace swoope;
+
+void parse_command(vector<string> & command, string s){
 	stringstream ss(s);
 
 	while(ss){
@@ -19,6 +22,129 @@ void  parse_command(vector<string> & command, string s){
 		ss >> temp;
 		command.push_back(temp);
 	}
+}
+
+void broadcast(string s, socketstream ss[], int size){
+	cout << s << endl;
+
+	for(int i = 1; i < size; i++){
+		ss[i] << s << endl;
+	}
+}
+
+void receive(socketstream &s){
+	string temp;
+	getline(s, temp);
+	cout << temp << endl;
+}
+
+int runServer(int port){
+	
+	int PLAYER_SIZE;
+	cout << "How many people are playing? (2-6 Players)" << endl;
+	do{
+		cin >> PLAYER_SIZE;
+		cin.ignore();
+		
+		if(cin.good() == 0){
+			cin.clear();
+			cin.ignore();
+			cout << "Invalid input. Please try again!" << endl;
+			continue;
+		}
+
+		if(!(2 <= PLAYER_SIZE and PLAYER_SIZE <= 6)){
+			cout << "There can only be 2-6 players in a game." << endl;
+		} else{
+			break;
+		}
+	}while(true);
+
+	cout << endl << "Created a game with " << PLAYER_SIZE << " players." << endl;
+
+	socketstream listener;
+	listener.open(to_string(port), PLAYER_SIZE);
+
+	//WAITING FOR CONNECTIONS
+	socketstream player_sockets[PLAYER_SIZE];
+	for(int i = 1; i < PLAYER_SIZE; i++){
+		cout << "Waiting for Player #" << i + 1 << "..." << endl;
+		listener.accept(player_sockets[i]);
+		cout << "Player #" << i + 1 << " has connected!" << endl;
+		
+		//SEND PLAYER # 
+		player_sockets[i] << i+1 << endl;
+	}
+
+	cout << endl;
+	broadcast("ALL PLAYERS HAVE CONNECTED!", player_sockets, PLAYER_SIZE);
+	cout << endl;
+
+	//PLAYER TYPE PREFERENCES
+	
+	string player_types[PLAYER_SIZE];
+	cout << "Please enter your prefered playyer type: (Human, Alien, Zombie, Doggo)" << endl;
+	while(true){
+
+		cin >> player_types[0];
+		cin.ignore();
+
+		strupper(player_types[0]);
+
+		if(player_types[0] == "HUMAN" or player_types[0] == "ALIEN" or player_types[0] == "ZOMBIE" or player_types[0] == "DOGGO") break;
+
+		cout << "INVALID PLAYER TYPE! Please select one of the following: (Human, Alien, Zombie, Doggo)" << endl;
+		};
+
+	for(int i = 1; i < PLAYER_SIZE; i++){
+		player_sockets[i] >> player_types[i];
+		player_sockets[i].ignore();
+	}
+
+	//debugging
+	for(int i = 0; i < PLAYER_SIZE; i++){
+		cout << player_types[i] << endl;
+	};
+	
+}
+
+void runClient(int port, string ip){
+	
+	//CONNECT TO SERVER
+	socketstream server;
+	server.open(ip, to_string(port));
+
+	//RECEIVE PLAYER #
+	int player_number;
+	server >> player_number;
+	server.ignore();
+
+	cout << "You have joined a game! You are Player #" << player_number << "." << endl;
+	cout << "Waiting for the rest of the players..." << endl;
+	
+	cout << endl;
+	receive(server);
+	cout << endl;
+
+	//PLAYER TYPE PREFERENCES
+	
+	cout << "Please enter your preferred player type: (Human, Alien, Zombie, Doggo)" << endl;
+
+	string type;
+	while(true){
+
+		cin >> type;
+		cin.ignore();
+		
+		strupper(type);
+
+		if(type == "HUMAN" or type == "ALIEN" or type == "ZOMBIE" or type == "DOGGO") break;
+	
+		cout << "INVALID PLAYER TYPE! Please select one of the following: (Human, Alien, Zombie, Doggo)" << endl;
+	};
+
+	server << strupper(type) << endl;
+
 }
 
 int setup(int argc, char* argv[]){
@@ -31,20 +157,14 @@ int setup(int argc, char* argv[]){
 	string ip = (argv[2] == NULL? "" :  argv[2]);
 
 	if(1024 <= port and port <= 65535){
-		//run server
+		if(ip == "") runServer(port);
+		else runClient(port, ip);
 	}
 	else{
-		//run client
+		cout << "Invalid port number!The port number must be between 1024-65535." << endl;
+		cout << "The program will now exit..." << endl;
+		return 0;
 	}
-}
-
-int runServer(int port){
-
-}
-
-void runClient(int){
-
-
 }
 
 int main(int argc, char *argv[]){
