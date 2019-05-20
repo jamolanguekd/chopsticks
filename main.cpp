@@ -28,19 +28,20 @@ void broadcast(string s, socketstream ss[], int size){
 	cout << s << endl;
 
 	for(int i = 1; i < size; i++){
-		ss[i] << s << endl;
+		ss[i] << s+'*' << endl;
 	}
 }
 
 void receive(socketstream &s){
 	string temp;
-	getline(s, temp);
+	getline(s, temp,'*');
 	cout << temp << endl;
 }
 
 int runServer(int port){
 	
 	int PLAYER_SIZE;
+
 	cout << "How many people are playing? (2-6 Players)" << endl;
 	do{
 		cin >> PLAYER_SIZE;
@@ -83,7 +84,7 @@ int runServer(int port){
 	//PLAYER TYPE PREFERENCES
 	
 	string player_types[PLAYER_SIZE];
-	cout << "Please enter your prefered playyer type: (Human, Alien, Zombie, Doggo)" << endl;
+	cout << "Please enter your prefered player type: (Human, Alien, Zombie, Doggo)" << endl;
 	while(true){
 
 		cin >> player_types[0];
@@ -101,11 +102,46 @@ int runServer(int port){
 		player_sockets[i].ignore();
 	}
 
-	//debugging
-	for(int i = 0; i < PLAYER_SIZE; i++){
-		cout << player_types[i] << endl;
-	};
+	cout << endl;
+	broadcast("PLAYER TYPE PREFERENCES HAVE BEEN SET!", player_sockets, PLAYER_SIZE);
+	cout<<endl;
+
+	//TEAM GROUPING PREFERENCES
 	
+	int player_teams[PLAYER_SIZE];
+	broadcast( "Please enter your preferred team number: (Pick a number between 1 - " + to_string(PLAYER_SIZE) + ")", player_sockets, PLAYER_SIZE);
+	
+	while(true){
+
+		cin >> player_teams[0];
+		cin.ignore();
+
+		for(int i = 1; i < PLAYER_SIZE; i++){
+			player_sockets[i] >> player_teams[i];
+			player_sockets[i].ignore();
+		}
+		
+		bool teams_valid = validate_teams(player_teams, PLAYER_SIZE);
+		for(int i = 1; i < PLAYER_SIZE; i++){
+			player_sockets[i] << teams_valid << endl;
+		}
+		
+		if(teams_valid) break;
+
+		cout << "INVALID TEAM NUMBER. Please try again: " << endl;
+	}
+
+	string temp = "\n";
+	for(int i = 0; i < PLAYER_SIZE; i++){
+		temp += "Player #" + to_string(i+1) + " has chosen Team #" + to_string(player_teams[i]) + ".\n";
+	}
+	broadcast(temp, player_sockets, PLAYER_SIZE);
+	cout << endl;
+	broadcast("TEAMS HAVE BEEN SET!", player_sockets, PLAYER_SIZE);
+	cout << endl;
+
+
+			
 }
 
 void runClient(int port, string ip){
@@ -144,6 +180,36 @@ void runClient(int port, string ip){
 	};
 
 	server << strupper(type) << endl;
+
+	cout << endl;
+	receive(server);
+	cout << endl;
+
+	//TEAM GROUPING PREFERENCES
+	
+	receive(server);
+
+	while(true){
+
+		int team_number;
+		cin >> team_number;			
+		cin.ignore();
+		server << team_number << endl;
+
+		bool b = false;
+
+		server >> b;
+		server.ignore();
+		
+		if(b) break;
+
+		cout << "INVALID TEAM NUMBER! Please try again: " << endl;
+	}
+
+	receive(server);
+	cout << endl;
+	receive(server);
+	cout << endl;
 
 }
 

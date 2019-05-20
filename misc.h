@@ -5,6 +5,42 @@
 
 using namespace std;
 
+//get max value from array
+int max_val(int arr[], int size){
+	int x = -1;
+	for(int i = 0; i < size; i++){
+		x = max(x, arr[i]);
+	}
+
+	return x;
+}
+
+//validate grouping preferences
+bool validate_teams(int arr[], int size){
+
+	int tcsize = max_val(arr,size);
+
+	int team_count[tcsize];
+	fill(team_count, team_count+tcsize, 0);
+	for(int i = 0; i < size; i++){
+		team_count[arr[i]-1] += 1;
+	}
+
+	int count = 0; //count how many teams have more than one player
+	for(int i = 0; i < tcsize; i++){
+		count = count + (team_count[i] > 0 ? 1 : 0);
+	}
+
+	bool no_gaps = true;
+	for(int i = 0; i < tcsize-1; i++){
+		if(team_count[i] == 0 && team_count[i+1] != 0){
+			no_gaps = false;
+			break;
+		}
+	}
+
+	return count > 1 && no_gaps;
+}
 
 //capitalizing strings
 string strupper(string &s){
