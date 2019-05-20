@@ -28,7 +28,7 @@ int main(){
 		int temp_team;
 		cin >> temp_team;
 		
-		teams[temp_team-1].add_player(Player(temp_type,i+1));
+		teams[temp_team-1].add_player(Player(temp_type,i+1,temp_team-1));
 	}
 
 	display_state(teams);
@@ -77,7 +77,7 @@ int main(){
 					
 					//LOCATE DEFENDING PLAYER THROUGH PLAYING NUMBER
 					Player *other_player = nullptr;
-					for(int i = 1; i < teams.size();i++){
+					for(int i = 0; i < teams.size();i++){
 						for(int j = 0; j < teams[i].get_roster()->size(); j++){
 							//cout << "Checking: Player#" << (*teams[i].get_roster())[j].get_player_number() << endl;											
 							if((*teams[i].get_roster())[j].get_player_number() == pnumber){
@@ -86,9 +86,15 @@ int main(){
 							}
 						}
 					}
-					 
-					//cout << endl << "Player #" << teams[0].get_roster()->at(0).get_player_number() << " has attacked Player #" << other_player->get_player_number() << endl;
-					(*teams[0].get_roster())[0].attack(apart,*other_player,tpart);
+
+					if(other_player->get_player_team_number() == teams[0].get_roster()->at(0).get_player_team_number()){
+						cout << "INVALID MOVE! You cannot attack your teammates. " << endl;
+					}
+
+					else{
+						//cout << endl << "Player #" << teams[0].get_roster()->at(0).get_player_number() << " has attacked Player #" << other_player->get_player_number() << endl;
+						(*teams[0].get_roster())[0].attack(apart,*other_player,tpart);
+					}
 				}
 				
 				//DISTRIBUTING HANDS

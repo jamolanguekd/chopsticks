@@ -13,6 +13,7 @@ using namespace std;
 class Player{
 	protected:
 		int player_number;	//player number
+		int player_team_number; //team number of this player
 		string type;		//player "class"
 		vector<Foot> feet;	//collection of feet 
 		vector<Hand> hands; //collection of hands
@@ -45,9 +46,10 @@ class Player{
 		}
 
 		//custom constructor
-		Player(string stype, int pnumber){
+		Player(string stype, int pnumber, int ptnumber){
 			
 			player_number = pnumber;
+			player_team_number = ptnumber;
 			type = stype;			
 			living = true;
 			skip = false;
@@ -94,6 +96,11 @@ class Player{
 		//get player number
 		int get_player_number(){
 			return player_number;
+		}
+
+		//get player team number
+		int get_player_team_number(){
+			return player_team_number;
 		}
 		
 		//set type of player
