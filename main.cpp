@@ -590,8 +590,8 @@ int main(){
 					cin >> apart >> pnumber >> tpart;
 					
 					//LOCATE DEFENDING PLAYER THROUGH PLAYING NUMBER
-					Player *other_player;
-					for(int i = 0; i < teams.size();i++){
+					Player *other_player = nullptr;
+					for(int i = 1; i < teams.size();i++){
 						for(int j = 0; j < teams[i].get_roster()->size(); j++){
 							//cout << "Checking: Player#" << (*teams[i].get_roster())[j].get_player_number() << endl;											
 							if((*teams[i].get_roster())[j].get_player_number() == pnumber){
