@@ -224,6 +224,31 @@ class Player{
 				actions_left--;
 		}
 
+		bool validate_transfer_hands(vector<int> hand_values){
+
+			bool valid_hands[hands.size()];
+
+			for(int i = 0; i < hands.size(); i++){
+				if(hands[i].is_living()){
+					valid_hands[i] = true;
+				} else{
+					valid_hands[i] = false;
+				}
+			}
+
+			int original_count = 0;
+		        int new_count = 0;
+
+			for(int i = 0; i < hands.size(); i++){
+				if(valid_hands[i]){
+					original_count += hands[i].get_digits();
+					new_count += hand_values[i];
+				}
+			}
+
+			return (original_count == new_count? true : false);
+		}
+
 		//changing the finger values of your hands; disthand
 		void transfer_hands(vector<int> hand_values){
 			

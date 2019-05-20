@@ -18,10 +18,10 @@ int setup(int argc, char* argv[]){
 	}
 
 	int port = atoi(argv[1]);
-	string ip = (argv[2] == NULL? return  "" : return argv[2]);
+	string ip = (argv[2] == NULL? "" :  argv[2]);
 
 	if(1024 <= port and port <= 65535){
-		return runServer(port);
+		//run server
 	}
 	else{
 		//run client
@@ -39,7 +39,7 @@ void runClient(int){
 
 int main(int argc, char *argv[]){
 
-	return(setup(argc,argv));	
+	setup(argc,argv);	
 
 	int numofplayers, numofteams;
 	cin >> numofplayers >> numofteams;
@@ -135,7 +135,13 @@ int main(int argc, char *argv[]){
 						new_values.push_back(x);
 					}
 					
-					teams[0].get_roster()->at(0).transfer_hands(new_values);
+					if(teams[0].get_roster()->at(0).validate_transfer_hands(new_values)){
+						teams[0].get_roster()->at(0).transfer_hands(new_values);
+					}
+
+					else{
+						cout << "INVALID MOVE! Your new finger count does not match your old count." << endl;
+					}
 				}
 				
 				//DISTRIBUTING FEET
