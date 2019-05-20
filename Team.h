@@ -3,9 +3,11 @@
 #include <string>
 #include <algorithm>
 
+#include "socketstream/socketstream.hh"
 #include "Player.h"
 
 using namespace std;
+using namespace swoope;
 
 #ifndef TEAM_H
 #define TEAM_H
@@ -30,11 +32,12 @@ class Team{
 			roster.push_back(new_player);
 			team_size++;
 		}
-		
+
 		//get player at certain position
 		Player get_player(int i){
 			return roster[i];
 		}
+
 		
 		//if atleast one player is living then the team is still alive
 		bool is_living(){

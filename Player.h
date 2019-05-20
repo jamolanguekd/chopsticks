@@ -5,8 +5,10 @@
 
 #include "Hand.h"
 #include "Foot.h"
+#include "socketstream/socketstream.hh"
 
 using namespace std;
+using namespace swoope;
 
 #ifndef PLAYER_H
 #define PLAYER_H
@@ -14,6 +16,7 @@ class Player{
 	protected:
 		int player_number;	//player number
 		int player_team_number; //team number of this player
+		socketstream* socket;    //socket of this player
 		string type;		//player "class"
 		vector<Foot> feet;	//collection of feet 
 		vector<Hand> hands; //collection of hands
@@ -46,8 +49,9 @@ class Player{
 		}
 
 		//custom constructor
-		Player(string stype, int pnumber, int ptnumber){
+		Player(string stype, int pnumber, int ptnumber, socketstream* s){
 			
+			socket = s;
 			player_number = pnumber;
 			player_team_number = ptnumber;
 			type = stype;			
@@ -101,6 +105,11 @@ class Player{
 		//get player team number
 		int get_player_team_number(){
 			return player_team_number;
+		}
+
+		//get socket
+		socketstream* get_socket(){
+			return socket;
 		}
 		
 		//set type of player

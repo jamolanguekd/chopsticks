@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <sstream>
 
 using namespace std;
 
@@ -66,13 +67,13 @@ int count_living_teams(vector<Team> teams){
 
 
 //DISPLAY STATE
-void display_state(vector<Team> teams){
+string display_state(vector<Team> teams){
+	stringstream ss;
 
 	sort(teams.begin(), teams.end());
 	//i is team number
 	for(int i = 0; i < teams.size();i++){
-		cout << "Team " << teams[i].get_team_number() << ": ";
-		
+		ss  << "Team " << teams[i].get_team_number() << ": ";
 		sort(teams[i].get_roster()->begin(),teams[i].get_roster()->end());
 		
 		//j is player
@@ -80,37 +81,39 @@ void display_state(vector<Team> teams){
 			
 			Player current_player = (*teams[i].get_roster())[j];
 			
-			cout << "P" << current_player.get_player_number() <<  char(tolower(current_player.get_type()[0]));
-			cout << " (";
+			ss << "P" << current_player.get_player_number() <<  char(tolower(current_player.get_type()[0]));
+			ss << " (";
 
 			//k is the hand of each player
 			for(int k = 0; k < current_player.get_hands()->size(); k++){
 				if((*current_player.get_hands())[k].is_living() == false){
-					cout << 'X';
+					ss << 'X';
 					continue;
 				}
-				cout << (*current_player.get_hands())[k].get_digits();
+				ss << (*current_player.get_hands())[k].get_digits();
 			}
 			
-			cout << ":";
+			ss << ":";
 			
 			//k is the hand of each player
 			for(int k = 0; k < current_player.get_feet()->size(); k++){
 				if((*current_player.get_feet())[k].is_living() == false){
-					cout << 'X';
+					ss << 'X';
 					continue;
 				}
-				cout << (*current_player.get_feet())[k].get_digits();
+				ss << (*current_player.get_feet())[k].get_digits();
 			}
 			
-			cout << ")";
+			ss << ")";
 			
 			if(j < teams[i].get_roster()->size()-1){
-				cout << " | ";
+				ss << " | ";
 			}
 
 		}
-		cout << endl;
+		ss << "\n";
 	}
+
+	return ss.str();
 }
 

@@ -140,8 +140,24 @@ int runServer(int port){
 	broadcast("TEAMS HAVE BEEN SET!", player_sockets, PLAYER_SIZE);
 	cout << endl;
 
+	//ACTUAL GAME START
+	int TEAM_SIZE = max_val(player_teams, PLAYER_SIZE);
 
-			
+	vector<Team> teams;
+	for(int i = 0; i < TEAM_SIZE; i++){
+		teams.push_back(Team(i+1));
+	}
+
+	for(int i = 0; i < PLAYER_SIZE; i++){
+		string stype = player_types[i];
+		teams[player_teams[i]-1].add_player(Player(stype,i+1,player_teams[i],&player_sockets[i]));
+	}
+
+	cout << endl;
+	broadcast("---------------------GAME START----------------------", player_sockets, PLAYER_SIZE);
+	cout << endl;
+	broadcast(display_state(teams), player_sockets, PLAYER_SIZE);
+	cout << endl;
 }
 
 void runClient(int port, string ip){
@@ -205,12 +221,17 @@ void runClient(int port, string ip){
 
 		cout << "INVALID TEAM NUMBER! Please try again: " << endl;
 	}
-
 	receive(server);
 	cout << endl;
 	receive(server);
 	cout << endl;
 
+	//ACTUAL GAME START
+	
+	receive(server);
+	cout << endl;
+	receive(server);
+	cout << endl;
 }
 
 int setup(int argc, char* argv[]){
@@ -236,7 +257,7 @@ int setup(int argc, char* argv[]){
 int main(int argc, char *argv[]){
 
 	setup(argc,argv);	
-
+	/*
 	int numofplayers, numofteams;
 	cin >> numofplayers;
 	cin.ignore();
@@ -422,4 +443,5 @@ int main(int argc, char *argv[]){
 			cout<<"Team "<<teams[i].get_team_number()<<" wins!"<<endl;
 		}
 	}
+	*/
 }
