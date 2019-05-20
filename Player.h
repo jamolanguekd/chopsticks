@@ -28,7 +28,7 @@ class Player{
 		Player(){
 			
 			player_number = 0;
-			type = "human";
+			type = "HUMAN";
 			living = true;
 			skip = false;
 			actions_left = 1;
@@ -61,22 +61,22 @@ class Player{
 			int numfeet = 0;
 			int numtoes = 0;
 			
-			if(type == "human"){
+			if(type == "HUMAN"){
 				numhands = 2;
 				numfingers = 5;
 				numfeet = 2;
 				numtoes=  5;
-			} else if(type == "alien"){
+			} else if(type == "ALIEN"){
 				numhands = 4;
 				numfingers= 3;
 				numfeet = 2;
 				numtoes = 2;
-			} else if(type == "zombie"){
+			} else if(type == "ZOMBIE"){
 				numhands = 1;
 				numfingers = 4;
 				actions_left = 2;
 				MAX_ACTIONS = 2;			//ZOMBIE HAS 2 ACTIONS PER TURN
-			} else if(type == "doggo"){
+			} else if(type == "DOGGO"){
 				numfeet = 4;
 				numtoes = 4;
 			}
@@ -174,7 +174,7 @@ class Player{
 						(*other_player.get_hands())[defending_number].add_digits(hands[attacking_number].get_digits());		
 						
 						//if defending player is a zombie AND 1 lang ang kamay nila tapos nadeads un, regrow
-						if(other_player.get_type() == "zombie"){
+						if(other_player.get_type() == "ZOMBIE"){
 							if(defending_number == 0 && !(*other_player.get_hands())[defending_number].is_living() && (*other_player.get_hands()).size() == 1){
 								other_player.regrow();
 							}
@@ -182,7 +182,7 @@ class Player{
 					} 
 					
 					//ATTACK FEET WITH HAND
-					else{
+					else if(defending_part[0] == 'F'){
 						if(defending_number >= other_player.get_feet()->size()){
 							cout << "INVALID MOVE! The feet you're trying to attack does not exist." << endl;
 							return;
@@ -192,14 +192,19 @@ class Player{
 						(*other_player.get_feet())[defending_number].add_digits(hands[attacking_number].get_digits());
 						
 						//if defending player is non-alien and their defending feet dies, they will earn a skip
-						if(!(*other_player.get_feet())[defending_number].is_living() && other_player.get_type() != "alien"){
+						if(!(*other_player.get_feet())[defending_number].is_living() && other_player.get_type() != "ALIEN"){
 							other_player.set_skip(true);
 						}
+					}
+
+					else{
+						cout << "INVALID MOVE! You are trying to attack something that does not exist." << endl;
+						return;
 					}
 				} 
 				
 				//ATTACK WITH FEET
-				else{
+				else if(attacking_part[0] == 'F'){
 					//EH for nonexistent feet
 					if(attacking_number >= feet.size()){
 						cout << "INVALID MOVE! You are trying to attack with something that does not exist." << endl;
@@ -218,7 +223,7 @@ class Player{
 						(*other_player.get_hands())[defending_number].add_digits(feet[attacking_number].get_digits());
 						
 						//if defending player is a zombie AND 1 lang ang kamay nila tapos nadeads un, regrow
-						if(other_player.get_type() == "zombie"){
+						if(other_player.get_type() == "ZOMBIE"){
 							if(defending_number == 0 && !(*other_player.get_hands())[defending_number].is_living() && (*other_player.get_hands()).size() == 1){
 								other_player.regrow();
 							}
@@ -227,7 +232,7 @@ class Player{
 					} 
 					
 					//ATTACK FEET WITH FEET
-					else{
+					else if(defending_part[0] == 'F'){
 						if(defending_number >= other_player.get_feet()->size()){
 							cout << "INVALID MOVE! The feet you're trying to attack does not exist." << endl;
 							return;
@@ -237,14 +242,24 @@ class Player{
 						(*other_player.get_feet())[defending_number].add_digits(feet[attacking_number].get_digits());
 						
 						//if defending player is non-alien and their defending feet dies, they will earn a skip
-						if(!(*other_player.get_feet())[defending_number].is_living() && other_player.get_type() != "alien"){
+						if(!(*other_player.get_feet())[defending_number].is_living() && other_player.get_type() != "ALIEN"){
 							other_player.set_skip(true);
 						}
 					}
+
+					else{
+						cout << "INVALID MOVE! You are trying to attack something that does not exist." << endl;
+						return;
+					}
+				} 
+
+				else{
+					cout << "INVALID MOVE! You are trying to attack with something that does not exist." << endl;
+					return;
 				}
 				
 				//NON-DOGGOS ATTACKING DOGGOS WILL EARN SKIPS; DONT HURT GOOD BOI
-				if(type != "doggo" && other_player.get_type() == "doggo"){
+				if(type != "DOGGO" && other_player.get_type() == "DOGGO"){
 					skip = true;
 				}
 				

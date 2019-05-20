@@ -71,7 +71,7 @@ int main(int argc, char *argv[]){
 		int temp_team;
 		cin >> temp_team;
 		cin.ignore();
-		teams[temp_team-1].add_player(Player(temp_type,i+1,temp_team-1));
+		teams[temp_team-1].add_player(Player(strupper(temp_type),i+1,temp_team-1));
 	}
 
 	display_state(teams);
@@ -117,9 +117,9 @@ int main(int argc, char *argv[]){
 
 
 				//TAPPING
-				if(command[0] == "tap"){
-					string apart = command[1];
-					string tpart = command[3];
+				if(strupper(command[0]) == "TAP"){
+					string apart = strupper(command[1]);
+					string tpart = strupper(command[3]);
 					int pnumber = stoi(command[2]);
 					
 					//LOCATE DEFENDING PLAYER THROUGH PLAYING NUMBER
@@ -157,7 +157,7 @@ int main(int argc, char *argv[]){
 				}
 				
 				//DISTRIBUTING HANDS
-				else if(command[0] == "disthands"){
+				else if(strupper(command[0]) == "DISTHANDS"){
 					vector<int> new_values;
 					
 					for(int i = 0; i < teams[0].get_roster()->at(0).get_hands()->size(); i++){
@@ -174,7 +174,7 @@ int main(int argc, char *argv[]){
 				}
 				
 				//DISTRIBUTING FEET
-				else if(command[0] == "distfeet"){
+				else if(strupper(command[0]) == "DISTFEET"){
 					vector<int> new_values;
 					
 					for(int i = 0; i < teams[0].get_roster()->at(0).get_feet()->size(); i++){

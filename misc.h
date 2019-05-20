@@ -5,6 +5,16 @@
 
 using namespace std;
 
+
+//capitalizing strings
+string strupper(string &s){
+	for(int i = 0; i < s.size(); i++){
+		s[i] = toupper(s[i]);
+	}
+
+	return s;
+}
+
 //COUNT LIVING TEAMS
 int count_living_teams(vector<Team> teams){
 	int count = 0;
@@ -34,7 +44,7 @@ void display_state(vector<Team> teams){
 			
 			Player current_player = (*teams[i].get_roster())[j];
 			
-			cout << "P" << current_player.get_player_number() << current_player.get_type()[0];
+			cout << "P" << current_player.get_player_number() <<  char(tolower(current_player.get_type()[0]));
 			cout << " (";
 
 			//k is the hand of each player
