@@ -126,7 +126,7 @@ int main(int argc, char *argv[]){
 				}
 				
 				//DISTRIBUTING HANDS
-				if(command == "disthands"){
+				else if(command == "disthands"){
 					vector<int> new_values;
 					
 					for(int i = 0; i < teams[0].get_roster()->at(0).get_hands()->size(); i++){
@@ -145,7 +145,7 @@ int main(int argc, char *argv[]){
 				}
 				
 				//DISTRIBUTING FEET
-				if(command == "distfeet"){
+				else if(command == "distfeet"){
 					vector<int> new_values;
 					
 					for(int i = 0; i < teams[0].get_roster()->at(0).get_feet()->size(); i++){
@@ -161,7 +161,10 @@ int main(int argc, char *argv[]){
 					}
 				}
 		
-				
+				else{
+					cout << "INVALID MOVE! The command " << command << " does not exist." << endl;
+				}
+
 				//IF WIN CONDITION IS SATISFIED, END ROUND EVEN IF ACTIONS LEFT
 				if(count_living_teams(teams) == 1) break;
 			}
