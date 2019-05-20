@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <sstream>
 
 #include "Hand.h"
 #include "Foot.h"
@@ -10,6 +11,15 @@
 #include "misc.h"
 
 using namespace std;
+void  parse_command(vector<string> & command, string s){
+	stringstream ss(s);
+
+	while(ss){
+		string temp;
+		ss >> temp;
+		command.push_back(temp);
+	}
+}
 
 int setup(int argc, char* argv[]){
 	if(argc < 1 and argc > 2){
@@ -42,8 +52,12 @@ int main(int argc, char *argv[]){
 	setup(argc,argv);	
 
 	int numofplayers, numofteams;
-	cin >> numofplayers >> numofteams;
-	
+	cin >> numofplayers;
+	cin.ignore();
+
+	cin >> numofteams;
+	cin.ignore();
+
 	vector<Team> teams;
 	
 	for(int i = 0; i < numofteams; i++){
@@ -53,9 +67,10 @@ int main(int argc, char *argv[]){
 	for(int i = 0; i < numofplayers; i++){
 		string temp_type;
 		cin >> temp_type;
+		cin.ignore();
 		int temp_team;
 		cin >> temp_team;
-		
+		cin.ignore();
 		teams[temp_team-1].add_player(Player(temp_type,i+1,temp_team-1));
 	}
 
@@ -93,15 +108,19 @@ int main(int argc, char *argv[]){
 				//cout << " Actions left: " << teams[0].get_roster()->at(0).get_actions() << endl << endl;
 				
 				//cout << "Enter command:" << endl;
-				string command;
-				cin >> command;
-			
+				vector<string> command;
+				
+				string temp;
+				getline(cin, temp);
+
+				parse_command(command, temp);
+
+
 				//TAPPING
-				if(command == "tap"){
-					string apart, tpart;
-					int pnumber;
-					
-					cin >> apart >> pnumber >> tpart;
+				if(command[0] == "tap"){
+					string apart = command[1];
+					string tpart = command[3];
+					int pnumber = stoi(command[2]);
 					
 					//LOCATE DEFENDING PLAYER THROUGH PLAYING NUMBER
 					Player *other_player = nullptr;
@@ -138,13 +157,11 @@ int main(int argc, char *argv[]){
 				}
 				
 				//DISTRIBUTING HANDS
-				else if(command == "disthands"){
+				else if(command[0] == "disthands"){
 					vector<int> new_values;
 					
 					for(int i = 0; i < teams[0].get_roster()->at(0).get_hands()->size(); i++){
-						int x;
-						cin >> x;
-						new_values.push_back(x);
+						new_values.push_back(stoi(command[1+i]));
 					}
 					
 					if(teams[0].get_roster()->at(0).validate_transfer_hands(new_values)){
@@ -157,13 +174,11 @@ int main(int argc, char *argv[]){
 				}
 				
 				//DISTRIBUTING FEET
-				else if(command == "distfeet"){
+				else if(command[0] == "distfeet"){
 					vector<int> new_values;
 					
 					for(int i = 0; i < teams[0].get_roster()->at(0).get_feet()->size(); i++){
-						int x;
-						cin >> x;
-						new_values.push_back(x);
+						new_values.push_back(stoi(command[1+i]));
 					}
 					if(teams[0].get_roster()->at(0).validate_transfer_feet(new_values)){
 						teams[0].get_roster()->at(0).transfer_feet(new_values);
@@ -174,7 +189,7 @@ int main(int argc, char *argv[]){
 				}
 		
 				else{
-					cout << "INVALID MOVE! The command " << command << " does not exist." << endl;
+					cout << "INVALID MOVE! The command does not exist." << endl;
 				}
 
 				//IF WIN CONDITION IS SATISFIED, END ROUND EVEN IF ACTIONS LEFT
