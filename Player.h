@@ -153,13 +153,23 @@ class Player{
 				
 				//defending hand #
 				int defending_number = toupper(defending_part[1]) - 65;
-				
+
 				//ATTACK WITH HAND
 				if(attacking_part[0] == 'H'){
-					
+					//EH for nonexistent weapon
+					if(attacking_number >= hands.size()){
+						cout << "INVALID MOVE! You are trying to attack with something that does not exist." << endl;
+						return;
+					}
+
 					//ATTACK HAND WITH HAND
 					if(defending_part[0] == 'H'){
 						
+						if(defending_number >= other_player.get_hands()->size()){
+							cout << "INVALID MOVE! The hand you're trying to attack does not exist." << endl;
+							return;
+						}
+
 						//update fingers of defending hand
 						(*other_player.get_hands())[defending_number].add_digits(hands[attacking_number].get_digits());		
 						
@@ -173,7 +183,11 @@ class Player{
 					
 					//ATTACK FEET WITH HAND
 					else{
-						
+						if(defending_number >= other_player.get_feet()->size()){
+							cout << "INVALID MOVE! The feet you're trying to attack does not exist." << endl;
+							return;
+						}
+
 						//update toes of defending feet
 						(*other_player.get_feet())[defending_number].add_digits(hands[attacking_number].get_digits());
 						
@@ -186,10 +200,20 @@ class Player{
 				
 				//ATTACK WITH FEET
 				else{
-					
+					//EH for nonexistent feet
+					if(attacking_number >= feet.size()){
+						cout << "INVALID MOVE! You are trying to attack with something that does not exist." << endl;
+						return;
+					}
+
 					//ATTACK HAND WITH FEET
 					if(defending_part[0] == 'H'){
 						
+						if(defending_number >= other_player.get_hands()->size()){
+							cout << "INVALID MOVE! The hand you're trying to attack does not exist." << endl;
+							return;
+						}
+
 						//update fingers of defending hand
 						(*other_player.get_hands())[defending_number].add_digits(feet[attacking_number].get_digits());
 						
@@ -204,7 +228,11 @@ class Player{
 					
 					//ATTACK FEET WITH FEET
 					else{
-						
+						if(defending_number >= other_player.get_feet()->size()){
+							cout << "INVALID MOVE! The feet you're trying to attack does not exist." << endl;
+							return;
+						}
+
 						//update toes of defending feet
 						(*other_player.get_feet())[defending_number].add_digits(feet[attacking_number].get_digits());
 						
