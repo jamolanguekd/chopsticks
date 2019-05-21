@@ -155,8 +155,9 @@ class Player{
 
 
 		//this player attacks another player
-		void attack(string attacking_part, Player &other_player, string defending_part){
-				
+		string attack(string attacking_part, Player &other_player, string defending_part){
+				string status = "";
+
 				//attacking hand #
 				int attacking_number = toupper(attacking_part[1]) - 65;
 				
@@ -167,16 +168,16 @@ class Player{
 				if(attacking_part[0] == 'H'){
 					//EH for nonexistent weapon
 					if(attacking_number >= hands.size()){
-						cout << "INVALID MOVE! You are trying to attack with something that does not exist." << endl;
-						return;
+						status = "INVALID MOVE! You are trying to attack with something that does not exist. Please try again.";
+						return status;
 					}
 
 					//ATTACK HAND WITH HAND
 					if(defending_part[0] == 'H'){
 						
 						if(defending_number >= other_player.get_hands()->size()){
-							cout << "INVALID MOVE! The hand you're trying to attack does not exist." << endl;
-							return;
+							status = "INVALID MOVE! The hand you're trying to attack does not exist. Please try again.";
+							return status;
 						}
 
 						//update fingers of defending hand
@@ -193,8 +194,8 @@ class Player{
 					//ATTACK FEET WITH HAND
 					else if(defending_part[0] == 'F'){
 						if(defending_number >= other_player.get_feet()->size()){
-							cout << "INVALID MOVE! The feet you're trying to attack does not exist." << endl;
-							return;
+							status = "INVALID MOVE! The feet you're trying to attack does not exist. Please try again.";
+							return status;
 						}
 
 						//update toes of defending feet
@@ -207,8 +208,8 @@ class Player{
 					}
 
 					else{
-						cout << "INVALID MOVE! You are trying to attack something that does not exist." << endl;
-						return;
+						status = "INVALID MOVE! You are trying to attack something that does not exist. Please try again.";
+						return status;
 					}
 				} 
 				
@@ -216,16 +217,16 @@ class Player{
 				else if(attacking_part[0] == 'F'){
 					//EH for nonexistent feet
 					if(attacking_number >= feet.size()){
-						cout << "INVALID MOVE! You are trying to attack with something that does not exist." << endl;
-						return;
+						status = "INVALID MOVE! You are trying to attack with something that does not exist. Please try again.";
+						return status;
 					}
 
 					//ATTACK HAND WITH FEET
 					if(defending_part[0] == 'H'){
 						
 						if(defending_number >= other_player.get_hands()->size()){
-							cout << "INVALID MOVE! The hand you're trying to attack does not exist." << endl;
-							return;
+							status = "INVALID MOVE! The hand you're trying to attack does not exist. Please try again.";
+							return status;
 						}
 
 						//update fingers of defending hand
@@ -243,8 +244,8 @@ class Player{
 					//ATTACK FEET WITH FEET
 					else if(defending_part[0] == 'F'){
 						if(defending_number >= other_player.get_feet()->size()){
-							cout << "INVALID MOVE! The feet you're trying to attack does not exist." << endl;
-							return;
+							status = "INVALID MOVE! The feet you're trying to attack does not exist. Please try again.";
+							return status;
 						}
 
 						//update toes of defending feet
@@ -257,14 +258,14 @@ class Player{
 					}
 
 					else{
-						cout << "INVALID MOVE! You are trying to attack something that does not exist." << endl;
-						return;
+						status = "INVALID MOVE! You are trying to attack something that does not exist.";
+						return status;
 					}
 				} 
 
 				else{
-					cout << "INVALID MOVE! You are trying to attack with something that does not exist." << endl;
-					return;
+					status = "INVALID MOVE! You are trying to attack with something that does not exist.";
+					return status;
 				}
 				
 				//NON-DOGGOS ATTACKING DOGGOS WILL EARN SKIPS; DONT HURT GOOD BOI
@@ -274,6 +275,9 @@ class Player{
 				
 				//if this function is called, it means an action has been consumed
 				actions_left--;
+
+				status = "Player #" + to_string(player_number) + " used " + apart + " to attack Player #" + other_player.get_player_number() + "'s " + tpart +".';
+			        return status;	
 		}
 
 		bool validate_transfer_hands(vector<int> hand_values){
