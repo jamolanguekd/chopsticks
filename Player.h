@@ -276,7 +276,7 @@ class Player{
 				//if this function is called, it means an action has been consumed
 				actions_left--;
 
-				status = "Player #" + to_string(player_number) + " used " + apart + " to attack Player #" + other_player.get_player_number() + "'s " + tpart +".';
+				status = "Player #" + to_string(player_number) + " used " + attacking_part + " to attack Player #" + to_string(other_player.get_player_number()) + "'s " + defending_part +".";
 			        return status;	
 		}
 
