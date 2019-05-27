@@ -410,8 +410,7 @@ class Player{
 			int j = 0;
 			for(int i = 0; i < hands.size(); i++){
 				if(hands[i].is_living()){
-					hands[i].set_digits(hand_values[j]); //only edit hands that are still alive
-					 
+					hands[i].set_digits(hand_values[j]); //only edit hands that are still alive					 
 					j++;
 				}
 			}

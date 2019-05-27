@@ -349,12 +349,12 @@ int runServer(int port){
 					player_sockets[i] << actions_left << endl;
 				}
 
+				//DISPLAY STATE
+				broadcast(display_state(teams), player_sockets, PLAYER_SIZE);
+
 				if(count_living_teams(teams) == 1) break;
 
 			}
-			
-			//DISPLAY STATE
-			broadcast(display_state(teams), player_sockets, PLAYER_SIZE);
 
 			//REPLENISH
 			current_player->reset_actions();
@@ -553,10 +553,9 @@ int runClient(int port, string ip){
 				server >> actions_left;
 				server.ignore();
 
+				//RECEIVE DISPLAY STATE
+				receive(server);
 			}
-
-			//RECEIVE DISPLAY STATE
-			receive(server);
 	
 		} else{
 			//RECEIVE SKIPPING TEAM
