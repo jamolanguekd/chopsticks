@@ -28,13 +28,13 @@ void broadcast(string s, socketstream ss[], int size){
 	cout << s << endl;
 
 	for(int i = 1; i < size; i++){
-		ss[i] << s+'*' << endl;
+		ss[i] << s+'~' << endl;
 	}
 }
 
 void receive(socketstream &s){
 	string temp;
-	getline(s, temp,'*');
+	getline(s, temp,'~');
 	cout << temp << endl;
 }
 
@@ -60,7 +60,8 @@ int runServer(int port){
 			break;
 		}
 	}
-
+	
+	cout << endl;
 	cout << "Created a game with " << PLAYER_SIZE << " players." << endl;
 
 	socketstream listener;
@@ -77,11 +78,13 @@ int runServer(int port){
 		player_sockets[i] << i+1 << endl;
 	}
 
+	cout << endl;
 	broadcast("ALL PLAYERS HAVE CONNECTED!", player_sockets, PLAYER_SIZE);
 
 	//PLAYER TYPE PREFERENCES
 	
 	string player_types[PLAYER_SIZE];
+	cout << endl;
 	cout << "Please enter your prefered player type: (Human, Alien, Zombie, Doggo)" << endl;
 	while(true){
 
@@ -100,11 +103,13 @@ int runServer(int port){
 		player_sockets[i].ignore();
 	}
 
+	cout << endl;
 	broadcast("PLAYER TYPE PREFERENCES HAVE BEEN SET!", player_sockets, PLAYER_SIZE);
 
 	//TEAM GROUPING PREFERENCES
 	
 	int player_teams[PLAYER_SIZE];
+	cout << endl;
 	broadcast( "Please enter your preferred team number: (Pick a number between 1 - " + to_string(PLAYER_SIZE) + ")", player_sockets, PLAYER_SIZE);
 	
 	while(true){
@@ -129,9 +134,11 @@ int runServer(int port){
 
 	string temp = "\n";
 	for(int i = 0; i < PLAYER_SIZE; i++){
-		temp += "Player #" + to_string(i+1) + " has chosen Team #" + to_string(player_teams[i]) + ".";
+		temp += "Player #" + to_string(i+1) + " has chosen Team #" + to_string(player_teams[i]) + ".\n";
 	}
 	broadcast(temp, player_sockets, PLAYER_SIZE);
+
+	cout << endl;
 	broadcast("TEAMS HAVE BEEN SET!", player_sockets, PLAYER_SIZE);
 
 	//ACTUAL GAME START
@@ -147,7 +154,9 @@ int runServer(int port){
 		teams[player_teams[i]-1].add_player(Player(stype,i+1,player_teams[i],&player_sockets[i]));
 	}
 
-	broadcast("---------------------GAME START----------------------", player_sockets, PLAYER_SIZE);
+	cout << endl;
+	broadcast("----------------------GAME START----------------------", player_sockets, PLAYER_SIZE);
+	cout << endl;	
 	broadcast(display_state(teams), player_sockets, PLAYER_SIZE);
 
 	int turn_number = 1;
@@ -156,51 +165,43 @@ int runServer(int port){
 	while(!gameOver){
 		
 		//BROADCAST TURN NUMBER
-		broadcast("######## Turn #" + to_string(turn_number)+" ########", player_sockets, PLAYER_SIZE);
+		cout << endl;
+		broadcast("_______________________Turn #" + to_string(turn_number)+"________________________", player_sockets, PLAYER_SIZE);
+	       	cout << endl;
 
-		Team *current_team = &(teams[0]);
-		vector<Player> *current_roster = current_team->get_roster();
-		int current_team_number = current_team->get_team_number();
-
-	       	
 		//SEND SKIP TEAM CHECK RESULTS
-		bool teamSkip = current_team->skip_team();
+		bool teamSkip = teams[0].skip_team();
 		for(int i = 1; i < PLAYER_SIZE; i++){
 			player_sockets[i] << teamSkip << endl;
 		}
 		if(!teamSkip){
 
-			Player *current_player = &(current_roster->at(0));
-			int current_player_number = current_player->get_player_number();
-
 			//BROADCAST TEAM NUMBER
-			broadcast("Team #" + to_string(current_team_number) + " is playing.", player_sockets, PLAYER_SIZE);
+			broadcast("Team #" + to_string(teams[0].get_team_number()) + " is playing.", player_sockets, PLAYER_SIZE);
 
 			//SEND NEXT PLAYER STATUS
-			bool nextPlayerFound = (current_player->get_skip() == false and current_player->is_living() == true ? true: false);
+			bool nextPlayerFound = (teams[0].get_roster()->at(0).get_skip() == false and teams[0].get_roster()->at(0).is_living() == true ? true: false);
 			for(int i = 1; i < PLAYER_SIZE; i++){
 				player_sockets[i] << nextPlayerFound << endl;
 			}
 			while(!nextPlayerFound)
 			{
 				//BROADCAST PLAYER SKIP
-				broadcast("Player #" + to_string(current_player_number) + "is skipping. Getting next player...", player_sockets, PLAYER_SIZE);
-				current_player->set_skip(false);
+				//broadcast("Player #" + to_string(teams[0].get_roster()->at(0).get_player_number()) + "is skipping. Getting next player...", player_sockets, PLAYER_SIZE);
+				teams[0].get_roster()->at(0).set_skip(false);
 				
 				//ROTATE
-				rotate(current_roster->begin(), current_roster->begin()+1, current_roster->end());
-				current_player = &(current_roster->at(0));
-				current_player_number = current_player->get_player_number();
+				rotate(teams[0].get_roster()->begin(), teams[0].get_roster()->begin()+1, teams[0].get_roster()->end());
 
 				//RESEND NEXT PLAYER STATUS
-				nextPlayerFound = (current_player->get_skip() == false and current_player->is_living() == true ? true: false);
-				for(int i = 0; i < PLAYER_SIZE; i++){
+				nextPlayerFound = (teams[0].get_roster()->at(0).get_skip() == false and teams[0].get_roster()->at(0).is_living() == true ? true: false);
+				for(int i = 1; i < PLAYER_SIZE; i++){
 					player_sockets[i] << nextPlayerFound << endl;
 				}
 			}
 
 			//BROADCAST PLAYER TURN
-			int playingNumber = current_player_number;
+			int playingNumber = teams[0].get_roster()->at(0).get_player_number();
 			broadcast("Player #" + to_string(playingNumber) + " is playing.", player_sockets, PLAYER_SIZE);
 
 			//SEND PLAYER # OF PLAYING PLAYER
@@ -209,10 +210,11 @@ int runServer(int port){
 			}
 
 			//SEND ACTIONS LEFT
-			int actions_left = current_player->get_actions();
+			int actions_left = teams[0].get_roster()->at(0).get_actions();
 			for(int i = 1; i < PLAYER_SIZE; i++){
 				player_sockets[i] << actions_left << endl;
 			}
+
 			while(actions_left > 0){
 				
 				//BROADCAST ACTIONS LEFT
@@ -258,21 +260,21 @@ int runServer(int port){
 						commandStatus = "INVALID MOVE! Player #" + to_string(pnumber) + " does not exist. Please try again.";
 					} else if(other_player->is_living() == false){
 						commandStatus = "INVALID MOVE! Player #" + to_string(pnumber) + " is already dead. Please try again.";
-					} else if(current_team_number  == other_player->get_player_team_number()){
-							if(current_player_number == other_player->get_player_number()){
+					} else if(teams[0].get_team_number()  == other_player->get_player_team_number()){
+							if(teams[0].get_roster()->at(0).get_player_number() == other_player->get_player_number()){
 									commandStatus = "INVALID MOVE! You cannot attack yourself. Please try again.";
 							}else{
 									commandStatus = "INVALID MOVE! You cannot attack your teammates. Please try again.";
 							}
 					} else{
-						commandStatus = current_player->attack(apart,*other_player,tpart);
+						commandStatus = teams[0].get_roster()->at(0).attack(apart,*other_player,tpart);
 					}
 				}
 
 				//DISTHANDS
 				else if(strupper(parsedCommand[0]) == "DISTHANDS"){
 					
-					if(current_player->count_living_hands() == 1){
+					if(teams[0].get_roster()->at(0).count_living_hands() == 1){
 						commandStatus = "INVALID MOVE! You only have one hand left.";
 					}
 
@@ -280,15 +282,15 @@ int runServer(int port){
 
 						vector<int> new_values;
 
-						for(int i = 0; i < current_player->count_living_hands(); i++){
+						for(int i = 0; i < teams[0].get_roster()->at(0).count_living_hands(); i++){
 							int x;
 							x = stoi(parsedCommand[i+1]);
 							new_values.push_back(x);
 						}
 
-						if(current_player->validate_transfer_hands(new_values)){
-							current_player->transfer_hands(new_values);
-							commandStatus = "Player #" + to_string(current_player_number) +  " has redistributed hands."; 	
+						if(teams[0].get_roster()->at(0).validate_transfer_hands(new_values)){
+							teams[0].get_roster()->at(0).transfer_hands(new_values);
+							commandStatus = "Player #" + to_string(teams[0].get_roster()->at(0).get_player_number()) +  " has redistributed hands."; 	
 						} else{
 							commandStatus = "INVALID MOVE! Redistribution is not valid.";
 						}
@@ -298,7 +300,7 @@ int runServer(int port){
 				//DISTFEET
 				else if(strupper(parsedCommand[0]) == "DISTFEET"){
 					
-					if(current_player->count_living_feet() == 1){
+					if(teams[0].get_roster()->at(0).count_living_feet() == 1){
 						commandStatus = "INVALID MOVE! You only have one hand left.";
 						break;
 					}
@@ -306,15 +308,15 @@ int runServer(int port){
 					else{
 						vector<int> new_values;
 
-						for(int i = 0; i < current_player->count_living_feet(); i++){
+						for(int i = 0; i < teams[0].get_roster()->at(0).count_living_feet(); i++){
 							int x;
 							x = stoi(parsedCommand[i+1]);
 							new_values.push_back(x);
 						}
 
-						if(current_player->validate_transfer_feet(new_values)){
-							current_player->transfer_feet(new_values);
-							commandStatus = "Player #" + to_string(current_player_number) + " has redistributed feet.";
+						if(teams[0].get_roster()->at(0).validate_transfer_feet(new_values)){
+							teams[0].get_roster()->at(0).transfer_feet(new_values);
+							commandStatus = "Player #" + to_string(teams[0].get_roster()->at(0).get_player_number()) + " has redistributed feet.";
 						} else{
 							commandStatus  = "INVALID MOVE! Redistribution is not valid.";
 						}
@@ -344,40 +346,40 @@ int runServer(int port){
 				}*/ broadcast(commandStatus, player_sockets, PLAYER_SIZE);
 							 
 				//RESEND ACTIONS LEFT
-				actions_left = current_player->get_actions();
-				for(int i = 0; i < PLAYER_SIZE; i++){
+				actions_left = teams[0].get_roster()->at(0).get_actions();
+				for(int i = 1; i < PLAYER_SIZE; i++){
 					player_sockets[i] << actions_left << endl;
 				}
-
-				//DISPLAY STATE
-				broadcast(display_state(teams), player_sockets, PLAYER_SIZE);
 
 				if(count_living_teams(teams) == 1) break;
 
 			}
 
 			//REPLENISH
-			current_player->reset_actions();
+			teams[0].get_roster()->at(0).reset_actions();
 
 			//ROTATE NEXT PLAYER
-			rotate(current_roster->begin(), current_roster->begin()+1, current_roster->end());	
+			rotate(teams[0].get_roster()->begin(), teams[0].get_roster()->begin()+1, teams[0].get_roster()->end());	
 		}
 
 		else{
 
 			//BROADCAST THE SKIPPING TEAM
-			broadcast("Team #" + to_string(current_team_number) + " is skipping.", player_sockets, PLAYER_SIZE);
+			broadcast("Team #" + to_string(teams[0].get_team_number()) + " is skipping.", player_sockets, PLAYER_SIZE);
 
 			//RESET THE SKIPS
-			for(int j = 0; j < current_roster->size(); j++){
-				current_roster->at(j).set_skip(false);
+			for(int j = 0; j < teams[0].get_roster()->size(); j++){
+				teams[0].get_roster()->at(j).set_skip(false);
 			}
-
+			
 		}
 
 		//ROTATE TEAMS
 		rotate(teams.begin(), teams.begin()+1, teams.end());
 
+		//DISPLAY STATUS
+		cout << endl;
+		broadcast(display_state(teams), player_sockets, PLAYER_SIZE);
 
 		//SEND GAME OVER STATUS
 		gameOver = (count_living_teams(teams) <= 1 ? true : false);
@@ -388,10 +390,13 @@ int runServer(int port){
 		turn_number++;
 	}
 
-
+	//BROADCAST GAME END
+	broadcast("---------------------GAME OVER---------------------", player_sockets, PLAYER_SIZE);
+	
 	int winning_team;
 
 	//BROADCAST WINNING TEAM
+	cout << endl;
 	for(int i = 0; i < teams.size(); i++){
 		if(teams[i].is_living()){
 			string winning = "Team #" + to_string(teams[i].get_team_number()) + " is the winner!";
@@ -416,9 +421,6 @@ int runServer(int port){
 		}
 	}
 
-
-
-
 	return 0;
 }
 
@@ -436,10 +438,11 @@ int runClient(int port, string ip){
 	cout << "You have joined a game! You are Player #" << player_number << "." << endl;
 	cout << "Waiting for the rest of the players..." << endl;
 	
+	cout << endl;
 	receive(server);
 
 	//PLAYER TYPE PREFERENCES
-	
+	cout << endl;
 	cout << "Please enter your preferred player type: (Human, Alien, Zombie, Doggo)" << endl;
 
 	string type;
@@ -478,12 +481,19 @@ int runClient(int port, string ip){
 
 		cout << "INVALID TEAM NUMBER! Please try again: " << endl;
 	}
+
+	//selection of each player
 	receive(server);
+
+	//team has been set
 	receive(server);
 
 	//ACTUAL GAME START 
 
+	//border
 	receive(server);
+
+	//first display
 	receive(server);
 
 	bool gameOver = false;
@@ -491,14 +501,13 @@ int runClient(int port, string ip){
 
 		//RECEIVER TURN NUMBER
 		receive(server);
+		cout << endl;
 
 		//RECEIVE TEAM SKIP CHECK RESULTS
 		bool teamSkip;
 		server >> teamSkip;
 		server.ignore();
-
 		if(!teamSkip){
-
 			//RECEIVE TEAM NUMBER
 			receive(server);
 
@@ -509,7 +518,7 @@ int runClient(int port, string ip){
 
 			while(!nextPlayerFound){
 				//RECEIVE PLAYER SKIP
-				receive(server);
+				//receive(server);
 				//SERVER WILL ROTATE
 				//RECEIVE NEXT PLAYER STATUS
 				server >> nextPlayerFound;
@@ -522,16 +531,16 @@ int runClient(int port, string ip){
 			int playingNumber;
 			server >> playingNumber;
 			server.ignore();
-
+			
 			//RECEIVE ACTIONS LEFT
 			int actions_left;
 			server >> actions_left;
 			server.ignore();
 
-			while(actions_left > 0){
-				
+			while(actions_left > 0){	
 				//RECEIVE ACTIONS LEFT
 				receive(server);
+				cout << endl;
 			
 				string unparsedCommand;
 
@@ -545,7 +554,6 @@ int runClient(int port, string ip){
 					cout << "Waiting for input from Player #" << playingNumber << "..." <<  endl;
 				}
 
-				
 				//RECEIVE COMMAND STATUS
 				receive(server);
 
@@ -553,19 +561,24 @@ int runClient(int port, string ip){
 				server >> actions_left;
 				server.ignore();
 
-				//RECEIVE DISPLAY STATE
-				receive(server);
 			}
 	
 		} else{
 			//RECEIVE SKIPPING TEAM
 			receive(server);
+
 		}
+
+		//RECEIVE DISPLAY STATE
+		cout << endl;
+		receive(server);
 
 		//RECEIVE GAME OVER STATUS
 		server >> gameOver;
 		server.ignore();
 	}
+	//RECEIVE GAME END
+	receive(server);
 
 	//RECEIVE WINNING 
 	receive(server);
@@ -599,191 +612,4 @@ int setup(int argc, char* argv[]){
 int main(int argc, char *argv[]){
 
 	return setup(argc,argv);	
-	/*
-	int numofplayers, numofteams;
-	cin >> numofplayers;
-	cin.ignore();
-
-	cin >> numofteams;
-	cin.ignore();
-
-	vector<Team> teams;
-	
-	for(int i = 0; i < numofteams; i++){
-		teams.push_back(Team(i+1));
-	}
-
-	for(int i = 0; i < numofplayers; i++){
-		string temp_type;
-		cin >> temp_type;
-		cin.ignore();
-		int temp_team;
-		cin >> temp_team;
-		cin.ignore();
-		teams[temp_team-1].add_player(Player(strupper(temp_type),i+1,temp_team-1));
-	}
-
-	display_state(teams);
-	cout << endl;
-
-	//Round number for debugging purposes
-	int round_number = 0;
-	
-	//NEW ROUND WHILE MORE THAN 1 TEAM IS ALIVE
-	while(count_living_teams(teams) > 1){
-		
-		//cout << "TURN NUMBER #"<< round_number << endl;
-		
-		//TEAM DOESN'T SKIP
-		if(!teams[0].skip_team()){
-			
-			//cout << "Team #" << teams[0].get_team_number() << "'s turn.";
-			
-			//WHILE NEXT PLAYER DUE IS SKIPPING, GET NEXT PLAYER
-			while((*teams[0].get_roster())[0].get_skip() || (*teams[0].get_roster())[0].is_living() == false){
-				
-				//TURN OFF NEXT PLAYER'S SKIPPING; IT MEANS NA SKIP NA SIYA
-				(*teams[0].get_roster())[0].set_skip(false);
-				
-				//GET NEXT PLAYER
-				rotate(teams[0].get_roster()->begin(), teams[0].get_roster()->begin()+1, teams[0].get_roster()->end());
-			}
-			
-			//cout << " Player #" << teams[0].get_roster()->at(0).get_player_number() << " is playing.";
-			
-			//WHILE ACTIONS LEFT
-			while((*teams[0].get_roster())[0].get_actions() > 0){ 
-				
-				//cout << " Actions left: " << teams[0].get_roster()->at(0).get_actions() << endl << endl;
-				
-				//cout << "Enter command:" << endl;
-				vector<string> command;
-				
-				string temp;
-				getline(cin, temp);
-
-				parse_command(command, temp);
-
-
-				//TAPPING
-				if(strupper(command[0]) == "TAP"){
-					string apart = strupper(command[1]);
-					string tpart = strupper(command[3]);
-					int pnumber = stoi(command[2]);
-					
-					//LOCATE DEFENDING PLAYER THROUGH PLAYING NUMBER
-					Player *other_player = nullptr;
-					for(int i = 0; i < teams.size();i++){
-						for(int j = 0; j < teams[i].get_roster()->size(); j++){
-							//cout << "Checking: Player#" << (*teams[i].get_roster())[j].get_player_number() << endl;											
-							if((*teams[i].get_roster())[j].get_player_number() == pnumber){
-								
-								other_player = &((*teams[i].get_roster())[j]);
-							}
-						}
-					}
-
-					if(other_player == nullptr){
-						cout << "INVALID MOVE! Player #" << pnumber << " does not exist." << endl;
-					}
-
-					else{
-						if(other_player->get_player_team_number()  == teams[0].get_roster()->at(0).get_player_team_number()){
-							if(pnumber == teams[0].get_roster()->at(0).get_player_number()){
-								cout << "INVALID MOVE! You cannot attack yourself." << endl;
-							}
-							else{
-								cout << "INVALID MOVE! You cannot attack your teammates " << endl;
-						
-							}
-						}
-
-						else{
-							//cout << endl << "Player #" << teams[0].get_roster()->at(0).get_player_number() << " has attacked Player #" << other_player->get_player_number() << endl;
-							(*teams[0].get_roster())[0].attack(apart,*other_player,tpart);
-						}
-					}
-				}
-				
-				//DISTRIBUTING HANDS
-				else if(strupper(command[0]) == "DISTHANDS"){
-					vector<int> new_values;
-					
-					for(int i = 0; i < teams[0].get_roster()->at(0).get_hands()->size(); i++){
-						new_values.push_back(stoi(command[1+i]));
-					}
-					
-					if(teams[0].get_roster()->at(0).validate_transfer_hands(new_values)){
-						teams[0].get_roster()->at(0).transfer_hands(new_values);
-					}
-
-					else{
-						cout << "INVALID MOVE! Your new finger count does not match your old count." << endl;
-					}
-				}
-				
-				//DISTRIBUTING FEET
-				else if(strupper(command[0]) == "DISTFEET"){
-					vector<int> new_values;
-					
-					for(int i = 0; i < teams[0].get_roster()->at(0).get_feet()->size(); i++){
-						new_values.push_back(stoi(command[1+i]));
-					}
-					if(teams[0].get_roster()->at(0).validate_transfer_feet(new_values)){
-						teams[0].get_roster()->at(0).transfer_feet(new_values);
-					}
-					else{
-						cout << "INVALID MOVE! Your new toe count does not match your old toe count." << endl;
-					}
-				}
-		
-				else{
-					cout << "INVALID MOVE! The command does not exist." << endl;
-				}
-
-				//IF WIN CONDITION IS SATISFIED, END ROUND EVEN IF ACTIONS LEFT
-				if(count_living_teams(teams) == 1) break;
-			}
-			
-			//DISPLAY STATE AFTER EVERY ROUND NOT ACTION
-			//cout << endl << "END-OF-TURN STATS" << endl << "****************************" << endl;
-			display_state(teams);	
-			//cout << "****************************" <<endl;
-			
-			
-			//REPLENISH PLAYERS ACTIONS LEFT
-			teams[0].get_roster()->at(0).reset_actions();
-			
-			//GET NEXT PLAYER
-			rotate(teams[0].get_roster()->begin(), teams[0].get_roster()->begin()+1, teams[0].get_roster()->end());
-			//cout << "(players have been rotated)" << endl;
-			
-		} 
-		//TEAM IS SKIPPING
-		else{
-			//cout << "> Team #" << teams[0].get_team_number() << " is skipping." <<endl;
-			
-			//RESET THE ENTIRE TEAM'S SKIPS
-			for(int j = 0; j < teams[0].get_roster()->size(); j++){								
-				(*teams[0].get_roster())[j].set_skip(false);		
-			}
-			
-		}
-
-		//GET NEXT TEAM
-		rotate(teams.begin(), teams.begin()+1, teams.end());
-		//cout << "(teams have been rotated)" << endl;
-		//cout << "E N D  O F  T U R N" << endl;
-		//cout <<"---------------------------------------------------------"<<endl<<endl;
-		
-		round_number++;
-	}
-	
-	//FIND THE TEAM NUMBER OF THE LAST LIVING TEAM AND DISPLAY WINNER
-	for(int i = 0; i < teams.size(); i++){
-		if(teams[i].is_living()){
-			cout<<"Team "<<teams[i].get_team_number()<<" wins!"<<endl;
-		}
-	}
-	*/
 }

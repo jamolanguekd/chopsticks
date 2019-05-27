@@ -79,7 +79,7 @@ class Player{
 				numfingers = 4;
 				actions_left = 2;
 				MAX_ACTIONS = 2;			//ZOMBIE HAS 2 ACTIONS PER TURN
-			} else if(type == "DOGGO"){
+			} else if(type == "DOGGO"){	
 				numfeet = 4;
 				numtoes = 4;
 			}
@@ -166,7 +166,7 @@ class Player{
 				//ATTACK WITH HAND
 				if(attacking_part[0] == 'H'){
 					//EH for nonexistent weapon
-					if(attacking_number >= hands.size()){
+					if(attacking_number >= hands.size() or hands[attacking_number].is_living() == false){
 						status = "INVALID MOVE! You are trying to attack with something that does not exist. Please try again.";
 						return status;
 					}
@@ -225,7 +225,7 @@ class Player{
 				//ATTACK WITH FEET
 				else if(attacking_part[0] == 'F'){
 					//EH for nonexistent feet
-					if(attacking_number >= feet.size()){
+					if(attacking_number >= feet.size() or feet[attacking_number].is_living() == false){
 						status = "INVALID MOVE! You are trying to attack with something that does not exist. Please try again.";
 						return status;
 					}

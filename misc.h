@@ -68,9 +68,26 @@ int count_living_teams(vector<Team> teams){
 
 //DISPLAY STATE
 string display_state(vector<Team> teams){
+
+	
+
 	stringstream ss;
 
 	sort(teams.begin(), teams.end());
+
+	//STORE NEXT PLAYER OF EACH TEAM;
+	string nextPlayerNumber[teams.size()];
+	for(int i = 0; i < teams.size();i++){
+		if(teams[i].skip_team() == false){
+			while(teams[i].get_roster()->at(0).get_skip() or teams[i].get_roster()->at(0).is_living() == false){
+				rotate(teams[i].get_roster()->begin(), teams[i].get_roster()->begin()+1, teams[i].get_roster()->end());
+			}
+			nextPlayerNumber[i] = "Player #" + to_string(teams[i].get_roster()->at(0).get_player_number());
+		} else{
+			nextPlayerNumber[i] = "SKIP";
+		}
+	}
+	
 	//i is team number
 	for(int i = 0; i < teams.size();i++){
 		ss  << "Team " << teams[i].get_team_number() << ": ";
@@ -95,7 +112,7 @@ string display_state(vector<Team> teams){
 			
 			ss << ":";
 			
-			//k is the hand of each player
+			//k is the feet of each player
 			for(int k = 0; k < current_player.get_feet()->size(); k++){
 				if((*current_player.get_feet())[k].is_living() == false){
 					ss << 'X';
@@ -106,11 +123,17 @@ string display_state(vector<Team> teams){
 			
 			ss << ")";
 			
+			//display skip mark
+			if(current_player.get_skip() == true){
+				ss << "*";
+			}
 			if(j < teams[i].get_roster()->size()-1){
 				ss << " | ";
 			}
 
 		}
+
+		ss << " [" << nextPlayerNumber[i] << "]";
 		ss << "\n";
 	}
 
