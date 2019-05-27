@@ -325,8 +325,8 @@ class Player{
 
 		bool validate_transfer_hands(vector<int> hand_values){
 
+			//store hand status
 			bool valid_hands[hands.size()];
-
 			for(int i = 0; i < hands.size(); i++){
 				if(hands[i].is_living()){
 					valid_hands[i] = true;
@@ -335,6 +335,7 @@ class Player{
 				}
 			}
 
+			//check for equal redistribution
 			int original_count = 0;
 		        int new_count = 0;
 			int j = 0;
@@ -349,6 +350,7 @@ class Player{
 
 			if(original_count != new_count) return false;
 
+			//check for same matches
 			j = 0;
 			for(int i = 0; i < hands.size(); i++){
 				if(valid_hands[i]){
@@ -386,6 +388,8 @@ class Player{
 				}
 			}
 			
+			if(original_count != new_count) return false;
+
 			j = 0;
 			for(int i = 0; i < feet.size(); i++){
 				if(valid_feet[i]){
@@ -403,8 +407,13 @@ class Player{
 		//changing the finger values of your hands; disthand
 		void transfer_hands(vector<int> hand_values){
 			
-			for(int i = 0; i < hand_values.size(); i++){
-				if(hands[i].is_living()) hands[i].set_digits(hand_values[i]); //only edit hands that are still alive
+			int j = 0;
+			for(int i = 0; i < hands.size(); i++){
+				if(hands[i].is_living()){
+					hands[i].set_digits(hand_values[j]); //only edit hands that are still alive
+					 
+					j++;
+				}
 			}
 
 			actions_left--;
@@ -413,8 +422,12 @@ class Player{
 		//changing toe values of feet; distfeet
 		void transfer_feet(vector<int> feet_values){
 			
-			for(int i = 0; i < feet_values.size(); i++){
-				if(feet[i].is_living()) feet[i].set_digits(feet_values[i]);	//only edit feet that are still alive
+			int j = 0;
+			for(int i = 0; i < feet.size(); i++){
+				if(feet[i].is_living()){
+					feet[i].set_digits(feet_values[j]);	//only edit feet that are still alive
+				 	j++;
+				}
 			}
 			
 			actions_left--;
