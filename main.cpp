@@ -43,7 +43,7 @@ int runServer(int port){
 	int PLAYER_SIZE;
 
 	cout << "How many people are playing? (2-6 Players)" << endl;
-	do{
+	while(true){
 		cin >> PLAYER_SIZE;
 		cin.ignore();
 		
@@ -59,7 +59,7 @@ int runServer(int port){
 		} else{
 			break;
 		}
-	}while(true);
+	}
 
 	cout << endl << "Created a game with " << PLAYER_SIZE << " players." << endl;
 
@@ -166,40 +166,50 @@ int runServer(int port){
 		
 		//BROADCAST TURN NUMBER
 		broadcast("######## Turn #" + to_string(turn_number)+" ########", player_sockets, PLAYER_SIZE);
+
+		Team *current_team = &(teams[0]);
+		vector<Player> *current_roster = current_team->get_roster();
+		int current_team_number = current_team->get_team_number();
+
 	       	
 		//SEND SKIP TEAM CHECK RESULTS
-		bool teamSkip = teams.at(0).skip_team();
+		bool teamSkip = current_team->skip_team();
 		for(int i = 1; i < PLAYER_SIZE; i++){
 			player_sockets[i] << teamSkip << endl;
 		}
 		if(!teamSkip){
 
+			Player *current_player = &(current_roster->at(0));
+			int current_player_number = current_player->get_player_number();
+
 			//BROADCAST TEAM NUMBER
-			broadcast("Team #" + to_string(teams.at(0).get_team_number()) + " is playing.", player_sockets, PLAYER_SIZE);
+			broadcast("Team #" + to_string(current_team_number) + " is playing.", player_sockets, PLAYER_SIZE);
 
 			//SEND NEXT PLAYER STATUS
-			bool nextPlayerFound = (teams[0].get_roster()->at(0).get_skip() == false and teams[0].get_roster()->at(0).is_living() == true ? true: false);
+			bool nextPlayerFound = (current_player->get_skip() == false and current_player->is_living() == true ? true: false);
 			for(int i = 1; i < PLAYER_SIZE; i++){
 				player_sockets[i] << nextPlayerFound << endl;
 			}
 			while(!nextPlayerFound)
 			{
 				//BROADCAST PLAYER SKIP
-				broadcast("Player #" + to_string(teams[0].get_roster()->at(0).get_player_number()) + "is skipping. Getting next player", player_sockets, PLAYER_SIZE);
-				teams[0].get_roster()->at(0).set_skip(false);
+				broadcast("Player #" + to_string(current_player_number) + "is skipping. Getting next player", player_sockets, PLAYER_SIZE);
+				current_player->set_skip(false);
 				
 				//ROTATE
-				rotate(teams[0].get_roster()->begin(), teams[0].get_roster()->begin()+1, teams[0].get_roster()->end());
+				rotate(current_roster->begin(), current_roster->begin()+1, current_roster->end());
+				current_player = &(current_roster->at(0));
+				current_player_number = current_player->get_player_number();
 
 				//RESEND NEXT PLAYER STATUS
-				nextPlayerFound = (teams[0].get_roster()->at(0).get_skip() == false and teams[0].get_roster()->at(0).is_living() == true ? true: false);
+				nextPlayerFound = (current_player->get_skip() == false and current_player->is_living() == true ? true: false);
 				for(int i = 0; i < PLAYER_SIZE; i++){
 					player_sockets[i] << nextPlayerFound << endl;
 				}
 			}
 
 			//BROADCAST PLAYER TURN
-			int playingNumber = teams[0].get_roster()->at(0).get_player_number();
+			int playingNumber = current_player_number;
 			broadcast("Player #" + to_string(playingNumber) + " is playing.", player_sockets, PLAYER_SIZE);
 
 			//SEND PLAYER # OF PLAYING PLAYER
@@ -208,7 +218,7 @@ int runServer(int port){
 			}
 
 			//SEND ACTIONS LEFT
-			int actions_left = teams[0].get_roster()->at(0).get_actions();
+			int actions_left = current_player->get_actions();
 			for(int i = 1; i < PLAYER_SIZE; i++){
 				player_sockets[i] << actions_left << endl;
 			}
@@ -233,10 +243,6 @@ int runServer(int port){
 				}
 
 				parse_command(parsedCommand, unparsedCommand);
-				
-				//for(int i = 0; i < parsedCommand.size(); i++){
-				//	cout << parsedCommand[i] << " ";
-				//}
 			
 				string commandStatus = "";
 
@@ -259,14 +265,14 @@ int runServer(int port){
 
 					if(other_player == nullptr){
 						commandStatus = "INVALID MOVE! Player #" + to_string(pnumber) + " does not exist. Please try again.";
-					} else if(teams[0].get_roster()->at(0).get_player_team_number() == other_player->get_player_team_number()){
-							if(teams[0].get_roster()->at(0).get_player_number() == other_player->get_player_number()){
+					} else if(current_team_number  == other_player->get_player_team_number()){
+							if(current_player_number == other_player->get_player_number()){
 									commandStatus = "INVALID MOVE! You cannot attack yourself. Please try again.";
 							}else{
 									commandStatus = "INVALID MOVE! You cannot attack your teammates. Please try again.";
 							}
 					} else{
-						commandStatus = teams[0].get_roster()->at(0).attack(apart,*other_player,tpart);
+						commandStatus = current_player->attack(apart,*other_player,tpart);
 					}
 				}
 
@@ -275,15 +281,15 @@ int runServer(int port){
 
 					vector<int> new_values;
 
-					for(int i = 0; i < teams[0].get_roster()->at(0).get_hands()->size(); i++){
+					for(int i = 0; i < current_player->get_hands()->size(); i++){
 						int x;
 						x = stoi(parsedCommand[i+1]);
 						new_values.push_back(x);
 					}
 
-					if(teams[0].get_roster()->at(0).validate_transfer_hands(new_values)){
-						teams[0].get_roster()->at(0).transfer_hands(new_values);
-						commandStatus = "Player #" + to_string(teams[0].get_roster()->at(0).get_player_number()) +  " has redistributed hands."; 	
+					if(current_player->validate_transfer_hands(new_values)){
+						current_player->transfer_hands(new_values);
+						commandStatus = "Player #" + to_string(current_player_number) +  " has redistributed hands."; 	
 					} else{
 						commandStatus = "INVALID MOVE! Redistribution is not valid.";
 					}
@@ -294,15 +300,15 @@ int runServer(int port){
 					
 					vector<int> new_values;
 
-					for(int i = 0; i < teams[0].get_roster()->at(0).get_feet()->size(); i++){
+					for(int i = 0; i < current_player->get_feet()->size(); i++){
 						int x;
 						x = stoi(parsedCommand[i+1]);
 						new_values.push_back(x);
 					}
 
-					if(teams[0].get_roster()->at(0).validate_transfer_feet(new_values)){
-						teams[0].get_roster()->at(0).transfer_feet(new_values);
-						commandStatus = "Player #" + to_string(teams[0].get_roster()->at(0).get_player_number()) + " has redistributed feet.";
+					if(current_player->validate_transfer_feet(new_values)){
+						current_player->transfer_feet(new_values);
+						commandStatus = "Player #" + to_string(current_player_number) + " has redistributed feet.";
 					} else{
 						commandStatus  = "INVALID MOVE! Redistribution is not valid.";
 					}
@@ -318,7 +324,7 @@ int runServer(int port){
 
 
 				//RESEND ACTIONS LEFT
-				actions_left = teams[0].get_roster()->at(0).get_actions();
+				actions_left = current_player->get_actions();
 				for(int i = 0; i < PLAYER_SIZE; i++){
 					player_sockets[i] << actions_left << endl;
 				}
@@ -331,20 +337,20 @@ int runServer(int port){
 			broadcast(display_state(teams), player_sockets, PLAYER_SIZE);
 
 			//REPLENISH
-			teams[0].get_roster()->at(0).reset_actions();
+			current_player->reset_actions();
 
 			//ROTATE NEXT PLAYER
-			rotate(teams[0].get_roster()->begin(), teams[0].get_roster()->begin()+1, teams[0].get_roster()->end());	
+			rotate(current_roster->begin(), current_roster->begin()+1, current_roster->end());	
 		}
 
 		else{
 
 			//BROADCAST THE SKIPPING TEAM
-			broadcast("Team #" + to_string(teams[0].get_team_number()) + " is skipping.", player_sockets, PLAYER_SIZE);
+			broadcast("Team #" + to_string(current_team_number) + " is skipping.", player_sockets, PLAYER_SIZE);
 
 			//RESET THE SKIPS
-			for(int j = 0; j < teams[0].get_roster()->size(); j++){
-				teams[0].get_roster()->at(j).set_skip(false);
+			for(int j = 0; j < current_roster->size(); j++){
+				current_roster->at(j).set_skip(false);
 			}
 
 		}
@@ -401,7 +407,6 @@ int runClient(int port, string ip){
 		cin.ignore();
 		
 		strupper(type);
-
 		if(type == "HUMAN" or type == "ALIEN" or type == "ZOMBIE" or type == "DOGGO") break;
 	
 		cout << "INVALID PLAYER TYPE! Please select one of the following: (Human, Alien, Zombie, Doggo)" << endl;
