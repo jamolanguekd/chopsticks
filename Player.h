@@ -23,7 +23,11 @@ class Player{
 		bool living;		//dead or alive
 		bool skip;			//flag is player is going to be skipped
 		int actions_left;	//number of actions left
-		int MAX_ACTIONS;	//max actions per turn
+		int MAX_ACTIONS;	//max actions per turn	
+		int numhands = 0;
+		int numfingers = 0;
+		int numfeet = 0;
+		int numtoes = 0;
 		
 	public:
 		
@@ -58,12 +62,7 @@ class Player{
 			living = true;
 			skip = false;
 			actions_left = 1;
-			MAX_ACTIONS = 1;
-			
-			int numhands = 0;
-			int numfingers = 0;
-			int numfeet = 0;
-			int numtoes = 0;
+			MAX_ACTIONS = 1;	
 			
 			if(type == "HUMAN"){
 				numhands = 2;
@@ -180,6 +179,11 @@ class Player{
 							return status;
 						}
 
+						if(other_player.get_hands()->at(defending_number).is_living() == false){
+							status = "INVALID MOVE! You may not attack a dead hand. Please try again.";
+							return status;
+						}
+
 						//update fingers of defending hand
 						(*other_player.get_hands())[defending_number].add_digits(hands[attacking_number].get_digits());		
 						
@@ -195,6 +199,11 @@ class Player{
 					else if(defending_part[0] == 'F'){
 						if(defending_number >= other_player.get_feet()->size()){
 							status = "INVALID MOVE! The feet you're trying to attack does not exist. Please try again.";
+							return status;
+						}
+
+						if(other_player.get_feet()->at(defending_number).is_living() == false){
+							status = "INVALID MOVE! You may not attack a dead foot. Please try again.";
 							return status;
 						}
 
@@ -229,6 +238,11 @@ class Player{
 							return status;
 						}
 
+						if(other_player.get_hands()->at(defending_number).is_living() == false){
+							status = "INVALID MOVE! You may not attack a dead hand. Please try again.";
+							return status;
+						}
+
 						//update fingers of defending hand
 						(*other_player.get_hands())[defending_number].add_digits(feet[attacking_number].get_digits());
 						
@@ -245,6 +259,11 @@ class Player{
 					else if(defending_part[0] == 'F'){
 						if(defending_number >= other_player.get_feet()->size()){
 							status = "INVALID MOVE! The feet you're trying to attack does not exist. Please try again.";
+							return status;
+						}
+
+						if(other_player.get_feet()->at(defending_number).is_living() == false){
+							status = "INVALID MOVE! You may not attack a dead foot.";
 							return status;
 						}
 
@@ -280,6 +299,30 @@ class Player{
 			        return status;	
 		}
 
+		int count_living_hands(){
+			int count = 0;
+
+			for(int i = 0; i < hands.size(); i++){
+				if(hands[i].is_living()){
+					count++;
+				}
+			}
+			
+			return count;
+		}
+
+		int count_living_feet(){
+			int count = 0;
+			
+			for(int i = 0; i < feet.size(); i++){
+				if(feet[i].is_living()){
+					count++;
+				}
+			}
+		
+			return count;
+		}
+
 		bool validate_transfer_hands(vector<int> hand_values){
 
 			bool valid_hands[hands.size()];
@@ -294,15 +337,29 @@ class Player{
 
 			int original_count = 0;
 		        int new_count = 0;
-
+			int j = 0;
 			for(int i = 0; i < hands.size(); i++){
 				if(valid_hands[i]){
+					if(hand_values[j] == numfingers) return false;
 					original_count += hands[i].get_digits();
-					new_count += hand_values[i];
+					new_count += hand_values[j];
+					j++;
 				}
 			}
 
-			return (original_count == new_count? true : false);
+			if(original_count != new_count) return false;
+
+			j = 0;
+			for(int i = 0; i < hands.size(); i++){
+				if(valid_hands[i]){
+					if(hand_values[j] != hands[i].get_digits()){
+						return true;
+					}
+					j++;
+				}
+			}
+
+			return false;
 		}
 
 		bool validate_transfer_feet(vector<int> feet_values){
@@ -319,15 +376,27 @@ class Player{
 
 			int original_count = 0;
 		        int new_count = 0;
-
+			int j = 0;
 			for(int i = 0; i < feet.size(); i++){
 				if(valid_feet[i]){
+					if(feet_values[j] == numtoes) return false;
 					original_count += feet[i].get_digits();
-					new_count += feet_values[i];
+					new_count += feet_values[j];
+					j++;
+				}
+			}
+			
+			j = 0;
+			for(int i = 0; i < feet.size(); i++){
+				if(valid_feet[i]){
+					if(feet_values[j] = feet[i].get_digits()){
+						return true;
+					}
+					j++;
 				}
 			}
 
-			return (original_count == new_count? true : false);
+			return false;
 		}
 
 
