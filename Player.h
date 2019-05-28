@@ -355,6 +355,7 @@ class Player{
 			for(int i = 0; i < hands.size(); i++){
 				if(valid_hands[i]){
 					if(hand_values[j] != hands[i].get_digits()){
+						if(hand_values[j] > numfingers) return false;
 						return true;
 					}
 					j++;
@@ -394,6 +395,7 @@ class Player{
 			for(int i = 0; i < feet.size(); i++){
 				if(valid_feet[i]){
 					if(feet_values[j] = feet[i].get_digits()){
+						if(feet_values[j] > numtoes) return false;
 						return true;
 					}
 					j++;
