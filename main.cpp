@@ -117,6 +117,13 @@ int runServer(int port){
 		cin >> player_teams[0];
 		cin.ignore();
 
+		if(cin.good() == 0){
+			cin.clear();
+			cin.ignore();
+			cout << "Invalid input. Please try again!" << endl;
+			continue;
+		}
+
 		for(int i = 1; i < PLAYER_SIZE; i++){
 			player_sockets[i] >> player_teams[i];
 			player_sockets[i].ignore();
@@ -470,6 +477,14 @@ int runClient(int port, string ip){
 		int team_number;
 		cin >> team_number;			
 		cin.ignore();
+
+		if(cin.good() == 0){
+			cin.clear();
+			cin.ignore();
+			cout << "Invalid input. Please try again!" << endl;
+			continue;
+		}
+	
 		server << team_number << endl;
 
 		bool b = false;
