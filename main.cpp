@@ -507,7 +507,7 @@ int runClient(int port, string ip){
 		int team_number;
 		string tempTeam;
 		while(true){
-			cin >> team_number;			
+			cin >> tempTeam;			
 			cin.ignore();
 
 			try{
