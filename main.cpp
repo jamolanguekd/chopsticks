@@ -275,9 +275,8 @@ int runServer(int port){
 				parse_command(parsedCommand, unparsedCommand);
 			
 				string commandStatus = "";
-
 				//ATTACK
-				if(strupper(parsedCommand[0]) == "TAP"){
+				if(strupper(parsedCommand[0]) == "TAP" && parsedCommand.size() == 5){
 					string apart = strupper(parsedCommand[1]);
 					string tpart = strupper(parsedCommand[3]);
 					int pnumber = stoi(parsedCommand[2]);
@@ -309,7 +308,7 @@ int runServer(int port){
 				}
 
 				//DISTHANDS
-				else if(strupper(parsedCommand[0]) == "DISTHANDS"){
+				else if(strupper(parsedCommand[0]) == "DISTHANDS" && parsedCommand.size() > 2){
 					
 					if(teams[0].get_roster()->at(0).count_living_hands() == 1){
 						commandStatus = "INVALID MOVE! You only have one hand left.";
@@ -335,7 +334,7 @@ int runServer(int port){
 				}
 
 				//DISTFEET
-				else if(strupper(parsedCommand[0]) == "DISTFEET"){
+				else if(strupper(parsedCommand[0]) == "DISTFEET" && parsedCommand.size() > 2){
 					
 					if(teams[0].get_roster()->at(0).count_living_feet() == 1){
 						commandStatus = "INVALID MOVE! You only have one hand left.";
