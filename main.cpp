@@ -42,24 +42,40 @@ int runServer(int port){
 	
 	int PLAYER_SIZE;
 
+	string tempPSize;
 	cout << "How many people are playing? (2-6 Players)" << endl;
 	while(true){
-		cin >> PLAYER_SIZE;
+		cin >> tempPSize;
 		cin.ignore();
 		
-		if(cin.good() == 0){
+		/*if(cin.good() == 0){
 			cin.clear();
 			cin.ignore();
 			cout << "Invalid input. Please try again!" << endl;
 			continue;
-		}
+		}*/
 
-		if(!(2 <= PLAYER_SIZE and PLAYER_SIZE <= 6)){
+		try{
+			throw stoi(tempPSize);
+		}catch(int x){
+			if(!(2 <= x and x <= 6)){
+				cout << "There can be only 2-6 players in a game." << endl;
+			} else{
+				break;
+			}
+		}catch(...){
+				cout << "Invalid input. Please try again!" << endl;
+				continue;
+		}
+			
+		/*if(!(2 <= stoi(tempPSize) and stoi(tempPSize) <= 6)){
 			cout << "There can only be 2-6 players in a game." << endl;
 		} else{
 			break;
-		}
+		}*/
 	}
+
+	PLAYER_SIZE = stoi(tempPSize);
 	
 	cout << endl;
 	cout << "Created a game with " << PLAYER_SIZE << " players." << endl;
@@ -113,16 +129,30 @@ int runServer(int port){
 	broadcast( "Please enter your preferred team number: (Pick a number between 1 - " + to_string(PLAYER_SIZE) + ")", player_sockets, PLAYER_SIZE);
 	
 	while(true){
+		
+		string tempTeam;
+		while(true){
+	
+			cin >> tempTeam;
+			cin.ignore();
+			
+			try{
+				throw stoi(tempTeam);
+			} catch(int x){
+				player_teams[0] = x;
+				break;
+			} catch(...){
+				cout << "Invalid input. Please try again!" << endl;
+				continue;
+			}
+		}
 
-		cin >> player_teams[0];
-		cin.ignore();
-
-		if(cin.good() == 0){
+		/*if(cin.good() == 0){
 			cin.clear();
 			cin.ignore();
 			cout << "Invalid input. Please try again!" << endl;
 			continue;
-		}
+		}*/
 
 		for(int i = 1; i < PLAYER_SIZE; i++){
 			player_sockets[i] >> player_teams[i];
@@ -475,18 +505,30 @@ int runClient(int port, string ip){
 	while(true){
 
 		int team_number;
-		cin >> team_number;			
-		cin.ignore();
+		string tempTeam;
+		while(true){
+			cin >> team_number;			
+			cin.ignore();
 
-		if(cin.good() == 0){
+			try{
+				throw stoi(tempTeam);
+			} catch(int x){
+				team_number = x;
+				break;
+			} catch(...){
+				cout << "Invalid input. Please try again!" << endl;
+				continue;
+			}
+		}
+
+		/*if(cin.good() == 0){
 			cin.clear();
 			cin.ignore();
 			cout << "Invalid input. Please try again!" << endl;
 			continue;
-		}
+		}*/
 	
 		server << team_number << endl;
-
 		bool b = false;
 
 		server >> b;
