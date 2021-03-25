@@ -47,13 +47,6 @@ int runServer(int port){
 	while(true){
 		cin >> tempPSize;
 		cin.ignore();
-		
-		/*if(cin.good() == 0){
-			cin.clear();
-			cin.ignore();
-			cout << "Invalid input. Please try again!" << endl;
-			continue;
-		}*/
 
 		try{
 			throw stoi(tempPSize);
@@ -68,11 +61,6 @@ int runServer(int port){
 				continue;
 		}
 			
-		/*if(!(2 <= stoi(tempPSize) and stoi(tempPSize) <= 6)){
-			cout << "There can only be 2-6 players in a game." << endl;
-		} else{
-			break;
-		}*/
 	}
 
 	PLAYER_SIZE = stoi(tempPSize);
@@ -146,13 +134,6 @@ int runServer(int port){
 				continue;
 			}
 		}
-
-		/*if(cin.good() == 0){
-			cin.clear();
-			cin.ignore();
-			cout << "Invalid input. Please try again!" << endl;
-			continue;
-		}*/
 
 		for(int i = 1; i < PLAYER_SIZE; i++){
 			player_sockets[i] >> player_teams[i];
@@ -365,21 +346,7 @@ int runServer(int port){
 				}
 
 				//BROADCAST COMMAND STATUS
-				/*if(playingNumber == 1){
-					cout << commandStatus << endl;
-					for(int i = 0; i < PLAYER_SIZE; i++){
-						player_sockets[i] << "" << endl;
-					}
-				} else{
-					for(int i = 1; i < PLAYER_SIZE; i++){
-						if(i == playingNumber-1){
-							player_sockets[i] << commandStatus << endl;
-						} else{
-							string s ="";
-							player_sockets[i] << s << endl;
-						}
-					}
-				}*/ broadcast(commandStatus, player_sockets, PLAYER_SIZE);
+				broadcast(commandStatus, player_sockets, PLAYER_SIZE);
 							 
 				//RESEND ACTIONS LEFT
 				actions_left = teams[0].get_roster()->at(0).get_actions();
@@ -519,13 +486,6 @@ int runClient(int port, string ip){
 				continue;
 			}
 		}
-
-		/*if(cin.good() == 0){
-			cin.clear();
-			cin.ignore();
-			cout << "Invalid input. Please try again!" << endl;
-			continue;
-		}*/
 	
 		server << team_number << endl;
 		bool b = false;
